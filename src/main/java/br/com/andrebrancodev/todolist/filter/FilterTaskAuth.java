@@ -24,6 +24,13 @@ public class FilterTaskAuth extends OncePerRequestFilter{
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+                var servletPath = request.getServletPath();
+                if (!servletPath.contains("/tasks")) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                
                 String authorization = request.getHeader("Authorization");
                 
                 if (authorization == null || authorization.isEmpty()) {
@@ -38,6 +45,11 @@ public class FilterTaskAuth extends OncePerRequestFilter{
                 String authString = new String(authDecoded);
 
                 String[] authArray = authString.split(":");
+
+                if (authArray.length != 2) {
+                    response.sendError(401, "Token invalid");
+                    return;
+                }
 
                 String username = authArray[0];
                 String password = authArray[1];
@@ -55,6 +67,8 @@ public class FilterTaskAuth extends OncePerRequestFilter{
                     response.sendError(401, "Password incorrect");
                     return;
                 }
+
+                request.setAttribute("user", user);
 
                 filterChain.doFilter(request, response);
     }

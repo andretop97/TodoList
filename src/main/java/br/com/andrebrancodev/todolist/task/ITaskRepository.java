@@ -3,7 +3,10 @@ package br.com.andrebrancodev.todolist.task;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
 
 public interface ITaskRepository extends JpaRepository<TaskModel, UUID> {
-    
+    List<TaskModel> findByUserUuid(UUID userUuid);
+    TaskModel findByUuidAndUserUuid(UUID uuid, UUID userUuid);
 }
