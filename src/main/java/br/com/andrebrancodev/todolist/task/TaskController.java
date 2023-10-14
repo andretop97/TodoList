@@ -55,10 +55,16 @@ public class TaskController {
     @PutMapping("/{uuid}")
     public ResponseEntity update(@RequestBody TaskModel task, HttpServletRequest request, @PathVariable("uuid") UUID uuid) {
         UserModel user = (UserModel) request.getAttribute("user");
-        TaskModel taskFound = taskRepository.findByUuidAndUserUuid(uuid, user.getUuid());
+        TaskModel taskFound = taskRepository.findByUuid(uuid);
 
         if (taskFound == null) {
-            return ResponseEntity.status(404).build();
+            System.out.println("Task not found");
+            return ResponseEntity.status(404).body("Task not found");
+        }
+
+        if (!taskFound.getUserUuid().equals(user.getUuid())) {
+            System.out.println("You don't have permission to update this task");
+            return ResponseEntity.status(403).body("You don't have permission to update this task");
         }
 
         Utils.updateObject(task, taskFound);
